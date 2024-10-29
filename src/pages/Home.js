@@ -1,58 +1,57 @@
-import React from 'react'
-import SongCard from '../components/SongCard'
+import React, { useState, useEffect } from 'react';
+import SongCard from '../components/SongCard';
 import { Layout } from 'antd';
+
 const { Content } = Layout;
+
 const Home = () => {
-    const listSongs = [
-        {
-            id: "1",
-            title: "A",
-            description: "A description",
-            imageUrl: "https://i.pinimg.com/564x/8c/bd/b1/8cbdb1172e0e05b86d911d3e2fe956f2.jpg",
-            songUrl: "NewEra.mp3"
-        },
-        {
-            id: "2",
-            title: "B",
-            description: "B description",
-            imageUrl: "https://i.pinimg.com/564x/8c/bd/b1/8cbdb1172e0e05b86d911d3e2fe956f2.jpg",
-            songUrl: "NewEra.mp3"
-        },
-        {
-            id: "3",
-            title: "C",
-            description: "C description",
-            imageUrl: "https://i.pinimg.com/564x/8c/bd/b1/8cbdb1172e0e05b86d911d3e2fe956f2.jpg",
-            songUrl: "NewEra.mp3"
-        }
-    ]
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://localhost:8080/songs') // Thay URL này bằng URL thực tế của API
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                console.log("Dữ liệu từ API:", responseData);
+                if (Array.isArray(responseData.data) && responseData.data.length > 0) {
+                    setData(responseData.data);
+                } else {
+                    setData([]);
+                }
+            })
+            .catch(error => {
+                console.error('Không thể lấy được dữ liệu: ', error);
+                setData([]);
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, []);
+
     return (
         <Content style={{ backgroundColor: "white" }}>
-            <div
-                style={{
-                    padding: 24,
-                    // minHeight: 510,
-                    gap: '1rem',
-                    display: 'flex'
-                }}
-            >
-                {listSongs.map(song => {
-                    return (
+            <div style={{ padding: 24, gap: '1rem', display: 'flex', flexWrap: 'wrap' }}>
+                {loading ? (
+                    <p>Loading...</p>
+                ) : (
+                    data.map(song => (
                         <SongCard
-                            key={song.id}
-                            id={song.id}
+                            key={song._id}
+                            id={song._id}
                             title={song.title}
-                            description={song.description}
                             imageUrl={song.imageUrl}
-                            songUrl={song.songUrl}
+                            songUrl={song.streamUrl}
                         />
-                    )
-
-                })}
-
+                    ))
+                )}
             </div>
         </Content>
-    )
-}
+    );
+};
 
-export default Home
+export default Home;

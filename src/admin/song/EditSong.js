@@ -21,7 +21,7 @@ const AddSong = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Song added:', song);
-        // Thêm logic để lưu bài hát tại đây
+
     };
 
     const handleCancel = () => {
@@ -49,7 +49,6 @@ const AddSong = () => {
     const buttonContainerStyle = {
         gridColumn: 'span 2',
         display: 'flex',
-        justifyContent: 'flex-start',
         gap: '10px',
         justifyContent: 'center',
         paddingTop: '50px'
