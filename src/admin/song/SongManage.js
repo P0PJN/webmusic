@@ -7,6 +7,10 @@ const SongManage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        fetchSongs();
+    }, []);
+
+    const fetchSongs = () => {
         fetch('http://localhost:8080/songs')
             .then(response => {
                 if (!response.ok) {
@@ -29,10 +33,7 @@ const SongManage = () => {
             .finally(() => {
                 setLoading(false);
             });
-    }, []);
-
-
-    console.log("Dữ liệu sau khi setData:", data);
+    };
 
     const handleAdd = () => {
         navigate('/admin/addsong');
@@ -42,14 +43,24 @@ const SongManage = () => {
         navigate(`/admin/editsong/${index}`);
     };
 
-    const handleDelete = (index) => {
-        console.log("Delete button clicked for song index:", index);
-        // Thực hiện xoá bài hát ở đây
+    const handleDelete = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:8080/songs/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                console.log("Bài hát đã được xóa thành công");
+                setData(data.filter(song => song._id !== id));
+            } else {
+                console.error("Không thể xóa bài hát");
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa bài hát: ', error);
+        }
     };
 
     return (
         <div>
-            {console.log(data)}
             {loading ? (
                 <p>Loading data, please wait...</p>
             ) : (
@@ -67,19 +78,19 @@ const SongManage = () => {
                     <tbody>
                         {data.length === 0 ? (
                             <tr>
-                                <td colSpan="5">No data available...</td>
+                                <td colSpan="6">No data available...</td>
                             </tr>
                         ) : (
-                            data.map((song, index) => (
-                                <tr key={index}>
+                            data.map((song) => (
+                                <tr key={song._id}>
                                     <td>{song.title}</td>
                                     <td>{song.artist}</td>
                                     <td>{song.streamUrl}</td>
                                     <td>{song.imageUrl}</td>
                                     <td>{song.playCount}</td>
                                     <td>
-                                        <button onClick={() => handleEdit(index)}>Edit</button>
-                                        <button onClick={() => handleDelete(index)}>Delete</button>
+                                        <button onClick={() => handleEdit(song._id)}>Edit</button>
+                                        <button onClick={() => handleDelete(song._id)}>Delete</button>
                                     </td>
                                 </tr>
                             ))
